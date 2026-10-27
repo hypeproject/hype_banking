@@ -47,7 +47,7 @@
     withdraw: {
       title: "Withdraw Funds",
       icon: "fa-arrow-up-from-line",
-      color: "text-red-400",
+      color: "text-bank-red",
       buttonColor: "bg-fleeca-card border border-fleeca-border hover:bg-fleeca-hover"
     },
     transfer: {

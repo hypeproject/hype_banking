@@ -3,17 +3,39 @@
 @tailwind utilities;
 
 :root {
-  --fleeca-green: #00a550;
-  --fleeca-light-green: #00c261;
-  --fleeca-dark-green: #008542;
+  --bank-green: #00a550;
+  --bank-light-green: #00c261;
+  --bank-dark-green: #008542;
+  --bank-red: #ef4444;
+  --bank-dark-red: #dc2626;
+  --bank-gold: #d4af37;
+  --bank-light-gold: #e6c446;
+  --bank-blue: #4682b4;
+  --bank-orange: #ffa500;
 
-  --fleeca-bg: #121212;
-  --fleeca-card: #1e1e1e;
-  --fleeca-card-hover: #252525;
-  --fleeca-text: #e0e0e0;
-  --fleeca-text-secondary: #a0a0a0;
-  --fleeca-border: #333333;
-  --fleeca-hover: #2a2a2a;
+  --bank-bg: #121212;
+  --bank-card: #1e1e1e;
+  --bank-card-hover: #252525;
+  --bank-text: #e0e0e0;
+  --bank-text-secondary: #a0a0a0;
+  --bank-border: #333333;
+  --bank-hover: #2a2a2a;
+  --bank-frame: #050506;
+
+  /* Aliases for backwards compatibility */
+  --fleeca-green: var(--bank-green);
+  --fleeca-light-green: var(--bank-light-green);
+  --fleeca-dark-green: var(--bank-dark-green);
+  --fleeca-red: var(--bank-red);
+  --fleeca-dark-red: var(--bank-dark-red);
+  --fleeca-gold: var(--bank-gold);
+  --fleeca-bg: var(--bank-bg);
+  --fleeca-card: var(--bank-card);
+  --fleeca-card-hover: var(--bank-card-hover);
+  --fleeca-text: var(--bank-text);
+  --fleeca-text-secondary: var(--bank-text-secondary);
+  --fleeca-border: var(--bank-border);
+  --fleeca-hover: var(--bank-hover);
 
   --border-radius-sm: 0.25rem;
   --border-radius: 0.5rem;

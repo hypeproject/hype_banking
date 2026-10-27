@@ -32,7 +32,7 @@
   const platinumThreshold = parseInt(localStorage.getItem('platinumThreshold') || '50000');
 
   let cardType = "PERSONAL";
-  let cardBackground = "bg-gradient-to-br from-fleeca-green to-fleeca-dark-green";
+  let cardBackground = "bg-gradient-to-br from-bank-green to-bank-dark-green";
   
   const orgNames = ["police", "ambulance", "ems", "sheriff", "fire", "government", "lspd", "bcso"];
   
@@ -59,7 +59,7 @@
         cardBackground = "bg-gradient-to-br from-gray-900 to-gray-800";
       } else {
         cardType = "PERSONAL";
-        cardBackground = "bg-gradient-to-br from-fleeca-green to-fleeca-dark-green";
+        cardBackground = "bg-gradient-to-br from-bank-green to-bank-dark-green";
       }
     }
   }
@@ -252,7 +252,7 @@
   .card-chip {
     width: 24px;
     height: 18px;
-    background: linear-gradient(135deg, #e6c446 0%, #d4af37 100%);
+    background: linear-gradient(135deg, theme('colors.bank.light-gold') 0%, theme('colors.bank.gold') 100%);
     border-radius: 3px;
     display: flex;
     align-items: center;
@@ -282,27 +282,27 @@
   }
   
   .business-badge {
-    background-color: rgba(255, 215, 0, 0.8);
+    background-color: theme('colors.bank.gold');
     color: rgba(0, 0, 0, 0.8);
   }
   
   .organization-badge {
-    background-color: rgba(70, 130, 180, 0.8);
+    background-color: theme('colors.bank.blue');
     color: white;
   }
   
   .personal-badge {
-    background-color: rgba(0, 165, 80, 0.8);
+    background-color: theme('colors.bank.green');
     color: white;
   }
   
   .platinum-badge {
-    background: linear-gradient(135deg, rgba(212, 175, 55, 0.8), rgba(255, 215, 0, 0.8));
+    background: linear-gradient(135deg, theme('colors.bank.gold'), theme('colors.bank.light-gold'));
     color: rgba(0, 0, 0, 0.8);
   }
   
   .frozen-badge {
-    background-color: rgba(255, 0, 0, 0.7);
+    background-color: theme('colors.bank.red');
     color: white;
     padding: 2px 6px;
     border-radius: 3px;
@@ -367,12 +367,12 @@
   }
   
   .circle-1 {
-    background-color: rgba(255, 0, 0, 0.7);
+    background-color: theme('colors.bank.red');
     left: 0;
   }
   
   .circle-2 {
-    background-color: rgba(255, 165, 0, 0.7);
+    background-color: theme('colors.bank.orange');
     right: 0;
     mix-blend-mode: screen;
   }
@@ -397,7 +397,7 @@
   
   .signature {
     font-family: 'Brush Script MT', cursive;
-    color: #333;
+    color: theme('colors.bank.border');
     font-size: 14px;
   }
   
@@ -409,13 +409,13 @@
   
   .cvv-label {
     font-size: 6px;
-    color: #333;
+    color: theme('colors.bank.border');
   }
   
   .cvv-number {
     font-size: 12px;
     font-weight: bold;
-    color: #333;
+    color: theme('colors.bank.border');
   }
   
   .card-info {

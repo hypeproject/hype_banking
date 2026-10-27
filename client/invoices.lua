@@ -1,7 +1,6 @@
-repeat Wait(500) until lib
 local utils = require 'shared.utils'
 local config = require 'shared.config'
-local core = require (('bridge.%s.client'):format(config.framework))
+require (('bridge.%s.client'):format(config.framework))
 
 local function invoiceMenu(playerId)
     local input = lib.inputDialog('Create Invoice', {
@@ -11,19 +10,22 @@ local function invoiceMenu(playerId)
         { type = 'checkbox', label = 'Auto Pay', default = false},
     })
     
-    if not input then return end
+    if not input or not input[2] or tonumber(input[2]) <= 0 then return end
     TriggerServerEvent('hype_banking:server:createInvoice', {
         target = playerId,
         item = input[1],
-        amount = input[2],
+        amount = tonumber(input[2]),
         note = input[3],
-        autoPay = input[4],
+        autoPay = input[4] or false,
     })
 end
 
--- RegisterCommand('createinvoice', function ()
---     invoiceMenu(cache.serverId)
--- end)
+local function canCreateInvoice()
+    if not PlayerData or not PlayerData.job or not PlayerData.job.name then
+        return false
+    end
+    return utils.getManagementAccess(PlayerData.job.name, PlayerData.job.grade or 0, 'createInvoice')
+end
 
 if config.interactionType == 'ox_target' then
     exports.ox_target:addGlobalPlayer({
@@ -33,11 +35,14 @@ if config.interactionType == 'ox_target' then
             icon = "fa-money-bill-wave",
             onSelect = function (data)
                 local entity = data.entity
-                local serverId = GetPlayerServerId(NetworkGetPlayerIndexFromPed(entity))
-                invoiceMenu(serverId)
+                local playerIndex = NetworkGetPlayerIndexFromPed(entity)
+                if playerIndex and playerIndex ~= -1 then
+                    local serverId = GetPlayerServerId(playerIndex)
+                    invoiceMenu(serverId)
+                end
             end,
             canInteract = function ()
-                return utils.getManagementAccess(PlayerData.job.name, PlayerData.job.grade, 'createInvoice')
+                return canCreateInvoice()
             end
         },
     })
@@ -54,16 +59,15 @@ elseif config.interactionType == 'interact' then
                 invoiceMenu(serverId)
             end,
             canInteract = function ()
-                return utils.getManagementAccess(PlayerData.job.name, PlayerData.job.grade, 'createInvoice')
+                return canCreateInvoice()
             end
         }
     })
 end
 
-RegisterNetEvent('hype_banking:client:openInvoiceMenu', function (invoices)
-    if source == '' then return end
+RegisterNetEvent('hype_banking:client:openInvoiceMenu', function (invoiceList)
     SendNUIMessage({action = 'setLoading', data = {status = true}})
-    SetTimeout(1000, function()
+    SetTimeout(500, function()
         SetNuiFocus(true, true)
         SendNUIMessage({
             action = 'setVisible',
@@ -74,8 +78,8 @@ RegisterNetEvent('hype_banking:client:openInvoiceMenu', function (invoices)
             }
         })
         SendNUIMessage({
-            action ='setInvoices',
-            data = invoices
+            action = 'setInvoices',
+            data = invoiceList or {}
         })
     end)
 end)
@@ -90,13 +94,13 @@ RegisterNUICallback('hype_banking:client:getAllInvoices', function (_, cb)
     cb(resp)
 end)
 
-RegisterNUICallback('hype_banking:client:payInvoice', function (invoice, cb)
-    local resp = lib.callback.await('hype_banking:server:payInvoice', false, invoice)
+RegisterNUICallback('hype_banking:client:payInvoice', function (inv, cb)
+    local resp = lib.callback.await('hype_banking:server:payInvoice', false, inv)
     cb(resp)
 end)
 
-RegisterNUICallback('hype_banking:client:cancelInvoice', function (invoice, cb)
-    local resp = lib.callback.await('hype_banking:server:cancelInvoice', false, invoice)
+RegisterNUICallback('hype_banking:client:cancelInvoice', function (inv, cb)
+    local resp = lib.callback.await('hype_banking:server:cancelInvoice', false, inv)
     cb(resp)
 end)
 

@@ -16,7 +16,8 @@ local function createPlayerObject(player)
         name = player.name,
         job = {
             name = player.job.name,
-            grade = player.job.grade
+            grade = player.job.grade,
+            label = player.job.label or player.job.name
         },
         removeMoney = function (type, amount, reason)
             type = type == 'cash' and 'money' or type
@@ -38,8 +39,8 @@ end
 --- Get Framework Player Data By Source
 ---@param source number | string | integer
 function core.GetPlayer(source)
-    if source == '' then return end
-    local player = esx.GetPlayerFromId(source)
+    if not source or source == '' then return end
+    local player = esx.GetPlayerFromId(tonumber(source) or source)
     if not player then return end
     return createPlayerObject(player)
 end
@@ -47,7 +48,7 @@ end
 --- Get Framework Player Data By Identifier
 ---@param identifier string
 function core.GetPlayerById(identifier)
-    if identifier == '' then return end
+    if not identifier or identifier == '' then return end
     local player = esx.GetPlayerFromIdentifier(identifier)
     if not player then return end
     return createPlayerObject(player)
@@ -82,7 +83,7 @@ end
 --- On Resource Start To Load Player Data
 ---@param cb function
 function core.onResourceStart(cb)
-    local players = ESX.GetExtendedPlayers()
+    local players = esx.GetExtendedPlayers()
     for _, Player in pairs(players) do
         cb(Player.identifier)
     end

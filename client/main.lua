@@ -1,7 +1,7 @@
-repeat Wait(200) until lib
 local STATES = {appReady = false, uiOpen = false}
-local utils = require 'client.utils'
 local config = require 'shared.config'
+require (('bridge.%s.client'):format(config.framework))
+local utils = require 'client.utils'
 
 local function setConfig()
     local locales = lib.getLocales()
@@ -20,13 +20,13 @@ local function openInterface(isAtm)
     if not accounts then
         utils.sendMessage('setLoading', {status = false})
         lib.notify({
-            message = locale('loading_failed'),
+            description = locale('loading_failed'),
             title = locale('bank_name'),
             type = 'error'
         })
         return
     end
-    Wait(1000)
+    Wait(200)
     focusInterface(true)
     utils.sendMessage('setVisible', {
         status = STATES.uiOpen,
@@ -126,11 +126,4 @@ end)
 RegisterNUICallback('hype_banking:client:sendMoney', function (data, cb)
     local resp = lib.callback.await('hype_banking:server:sendMoney', false, data)
     cb(resp)
-end)
-
---[[ Events ]] --
-AddEventHandler('onResourceStop', function(res)
-    if res ~= cache.resource then return end
-    repeat Wait(200) until STATES.appReady
-    setConfig()
 end)

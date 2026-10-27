@@ -11,12 +11,13 @@ if not success then return end
 
 local function createPlayerObject(player)
     return {
-        identifier = player.citizenid,
+        identifier = player.citizenid or player.identifier,
         source = player.source,
         name = player.name,
         job = {
             name = player.job.name,
-            grade = player.job.grade
+            grade = player.job.grade,
+            label = player.job.label or player.job.name
         },
         removeMoney = function (type, amount, reason)
             type = type == 'cash' and 'money' or type
@@ -38,8 +39,8 @@ end
 --- Get Framework Player Data By Source
 ---@param source number | string | integer
 function core.GetPlayer(source)
-    if source == '' then return end
-    local player = hype.GetPlayerFromId(source)
+    if not source or source == '' then return end
+    local player = hype.GetPlayerFromId(tonumber(source) or source)
     if not player then return end
     return createPlayerObject(player)
 end
@@ -47,7 +48,7 @@ end
 --- Get Framework Player Data By Identifier
 ---@param identifier string
 function core.GetPlayerById(identifier)
-    if identifier == '' then return end
+    if not identifier or identifier == '' then return end
     local player = hype.GetPlayerFromIdentifier(identifier)
     if not player then return end
     return createPlayerObject(player)
@@ -55,8 +56,8 @@ end
 
 function core.GetJobs()
     local jobs = {}
-    hype.RefreshJobs()
-    local frameworkJobs = hype.GetJobs()
+    if hype.RefreshJobs then hype.RefreshJobs() end
+    local frameworkJobs = hype.GetJobs and hype.GetJobs() or {}
     for jobName, job in pairs(frameworkJobs) do
         jobs[jobName] = {
             label = job.label,
@@ -75,16 +76,16 @@ end
 ---@param cb function
 function core.onPlayerLoad(cb)
     AddEventHandler('esx:playerLoaded', function (playerId, xPlayer, isNew)
-        cb(xPlayer.citizenid)
+        cb(xPlayer.citizenid or xPlayer.identifier)
     end)
 end
 
 --- On Resource Start To Load Player Data
 ---@param cb function
 function core.onResourceStart(cb)
-    local players = ESX.GetExtendedPlayers()
+    local players = hype.GetExtendedPlayers and hype.GetExtendedPlayers() or {}
     for _, Player in pairs(players) do
-        cb(Player.citizenid)
+        cb(Player.citizenid or Player.identifier)
     end
 end
 

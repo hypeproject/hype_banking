@@ -10,12 +10,12 @@ function utils.createTransactionId()
     end)
 end
 
---- Sanitize Message
+--- Sanitize Message (for display or logging safety)
 ---@param message string
 ---@return string
 function utils.sanitizeMessage(message)
     if type(message) ~= "string" then
-        message = tostring(message)
+        message = tostring(message or '')
     end
     message = message:gsub("'", "''"):gsub("\\", "\\\\")
     return message
@@ -26,10 +26,16 @@ end
 ---@param playerGrade number
 ---@param access string | string[]
 function utils.getManagementAccess(playerJob, playerGrade, access)
-    -- Check if job exists in management access config
-    if not config.ManagementAccess[playerJob] then
+    if not playerJob or not playerGrade then
         return false
     end
+
+    -- Check if job exists in management access config
+    if not config.ManagementAccess or not config.ManagementAccess[playerJob] then
+        return false
+    end
+
+    local numGrade = tonumber(playerGrade) or 0
 
     -- Handle both single string and array of access types
     local accessTypes = type(access) == 'table' and access or {access}
@@ -39,7 +45,7 @@ function utils.getManagementAccess(playerJob, playerGrade, access)
         local requiredGrade = config.ManagementAccess[playerJob][accessType]
         
         -- If access type doesn't exist or player grade is lower than required
-        if not requiredGrade or playerGrade < requiredGrade then
+        if not requiredGrade or numGrade < requiredGrade then
             return false
         end
     end

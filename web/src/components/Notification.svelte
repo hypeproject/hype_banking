@@ -19,10 +19,10 @@
       : 'fa-circle-info';
 
   $: notificationColor = notificationType === 'error'
-    ? 'text-red-500'
+    ? 'text-bank-red'
     : notificationType === 'success'
-      ? 'text-green-500'
-      : 'text-fleeca-green';
+      ? 'text-bank-green'
+      : 'text-bank-green';
 
   $: if ($notify) {
     startTimer();
@@ -61,9 +61,8 @@
       <div class="relative h-1 bg-fleeca-bg">
         <div
           class="absolute left-0 top-0 h-full transition-all duration-100 ease-linear"
-          class:bg-red-500={notificationType === 'error'}
-          class:bg-green-500={notificationType === 'success'}
-          class:bg-fleeca-green={notificationType === 'info'}
+          class:bg-bank-red={notificationType === 'error'}
+          class:bg-bank-green={notificationType === 'success' || notificationType === 'info'}
           style="width: {progress}%"
         ></div>
       </div>

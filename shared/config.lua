@@ -5,7 +5,28 @@ config.currency = 'USD'
 config.platinumThreshold = 75000 -- Amount required for an account to be considered platinum
 config.interactionType = 'ox_target' -- ox_target or interact https://github.com/darktrovx/interact
 
-config.framework = 'esx' -- esx / qb / qbx / hype
+config.framework = 'auto' -- esx / qb / qbx / hype / auto
+
+-- Normalize and auto-detect framework if needed
+local configuredFramework = config.framework
+if configuredFramework == 'qbox' then
+    configuredFramework = 'qbx'
+end
+
+if not configuredFramework or configuredFramework == 'auto' then
+    if GetResourceState('qbx_core') == 'started' then
+        configuredFramework = 'qbx'
+    elseif GetResourceState('qb-core') == 'started' then
+        configuredFramework = 'qb'
+    elseif GetResourceState('es_extended') == 'started' then
+        configuredFramework = 'esx'
+    elseif GetResourceState('hype_core') == 'started' then
+        configuredFramework = 'hype'
+    else
+        configuredFramework = 'esx'
+    end
+end
+config.framework = configuredFramework
 
 config.App = {
     name = 'Hype Banking',
@@ -54,9 +75,11 @@ config.blip = {
     label = 'Bank',
 }
 
---[[ Peds And Bank Locations]]--
+--[[ Peds And Bank Locations]]
+--
 config.peds = {
-    [1] = { -- Pacific Standard
+    [1] = {
+        -- Pacific Standard
         model = 'u_m_m_bankman',
         coords = vector4(241.44, 227.19, 106.29, 170.43),
         blip = {
@@ -92,7 +115,8 @@ config.peds = {
         model = 'ig_barry',
         coords = vector4(1174.8, 2708.2, 38.09, 178.52)
     },
-    [8] = { -- paleto
+    [8] = {
+        -- paleto
         model = 'u_m_m_bankman',
         coords = vector4(-112.22, 6471.01, 31.63, 134.18),
         createAccounts = true

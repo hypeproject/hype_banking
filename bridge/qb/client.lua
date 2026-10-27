@@ -2,15 +2,27 @@ if GetResourceState('qb-core') ~= 'started' then
     return
 end
 
-PlayerData = {}
+PlayerData = PlayerData or {}
+PlayerData.job = PlayerData.job or {
+    name = 'unemployed',
+    grade = 0,
+    label = 'Unemployed'
+}
+
+local function setPlayerJob(job)
+    if not job then return end
+    PlayerData.job = {
+        name = job.name or 'unemployed',
+        grade = job.grade and (job.grade.level or job.grade) or 0,
+        label = job.label or job.name or 'Unemployed',
+    }
+end
+
 local success, QB = pcall(function ()
     local obj = exports['qb-core']:GetCoreObject()
     local playerData = obj.Functions.GetPlayerData()
-    if playerData then
-        PlayerData.job = {
-            name = playerData.job.name,
-            grade = playerData.job.grade.level,
-        }
+    if playerData and playerData.job then
+        setPlayerJob(playerData.job)
     end
     return obj
 end)
@@ -18,18 +30,19 @@ end)
 if not success then return end
 
 RegisterNetEvent('QBCore:Client:OnJobUpdate', function (job)
-    if source == '' then return end
-    PlayerData.job = {
-        name = job.name,
-        grade = job.grade.level,
-    }
+    setPlayerJob(job)
 end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function ()
-    if source == '' then return end
     local playerData = QB.Functions.GetPlayerData()
-    PlayerData.job = {
-        name = playerData.job.name,
-        grade = playerData.job.grade.level,
-    }
+    if playerData and playerData.job then
+        setPlayerJob(playerData.job)
+    end
 end)
+
+local core = {}
+function core.getPlayerData()
+    return PlayerData
+end
+
+return core

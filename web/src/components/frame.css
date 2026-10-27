@@ -14,7 +14,7 @@
 
     border-radius: 3.75rem;
     background-color: black;
-    box-shadow: 0 0 0.1em 0.25em #050506, 0 0 0 0.4em hsl(254, 30%, 85%);
+    box-shadow: 0 0 0.1em 0.25em var(--bank-frame), 0 0 0 0.4em hsl(254, 30%, 85%);
 
     z-index: 2;
 }

@@ -23,19 +23,20 @@ function utils.createBlip(data)
     BeginTextCommandSetBlipName('STRING')
     AddTextComponentString(data.label)
     EndTextCommandSetBlipName(blip)
+    return blip
 end
 
 --- Create Peds
 ---@param openBank function
 function utils.createPeds(openBank)
     for k, v in pairs(config.peds) do
-        local blipdata = v.blip or config.blip
+        local blipdata = table.clone(v.blip or config.blip)
         blipdata.coords = v.coords
-        local blip = utils.createBlip(blipdata)
+        utils.createBlip(blipdata)
         local pts = lib.points.new({
             coords = vec4(v.coords.x, v.coords.y, v.coords.z, v.coords.w),
             heading = v.coords.w,
-            distance = 100,
+            distance = 60,
             model = v.model,
             manager = v.createAccounts
         })
@@ -47,25 +48,21 @@ function utils.createPeds(openBank)
                     {
                         label = locale('view_bank'),
                         icon = 'fas fa-university',
-                        name = interactionId,
-                        id = interactionId,
-                        onSelect = function ()
+                        name = interactionId .. '_view',
+                        onSelect = function()
                             openBank(false)
-                            -- Handle Open Bank
                         end
                     },
                     {
                         label = locale('manage_bank'),
-                        icon = 'fas fa-university',
-                        name = interactionId,
-                        id = interactionId,
-                        onSelect = function ()
+                        icon = 'fas fa-briefcase',
+                        name = interactionId .. '_manage',
+                        onSelect = function()
                             if openBank(false) then
                                 utils.sendMessage('setManagementConfig', true)
                             end
-                            -- Todo: Open Manage Bank
                         end,
-                        canInteract = function ()
+                        canInteract = function()
                             return self.manager
                         end
                     }
@@ -76,27 +73,25 @@ function utils.createPeds(openBank)
                     name = interactionId,
                     id = interactionId,
                     distance = 5.0,
-                    interactDst = 4.0,
+                    interactDst = 3.0,
                     ignoreLos = true,
                     options = {
                         {
                             label = locale('view_bank'),
-                            action = function ()
+                            action = function()
                                 openBank(false)
-                                -- Handle Open Bank
                             end
                         },
                         {
                             label = locale('manage_bank'),
-                            name = interactionId,
-                            id = interactionId,
-                            action = function ()
-                                -- Todo: Open Manage Bank
+                            name = interactionId .. '_manage',
+                            id = interactionId .. '_manage',
+                            action = function()
                                 if openBank(false) then
                                     utils.sendMessage('setManagementConfig', true)
                                 end
                             end,
-                            canInteract = function ()
+                            canInteract = function()
                                 return self.manager
                             end
                         }
@@ -107,15 +102,19 @@ function utils.createPeds(openBank)
 
         function pts:removeInteraction()
             if config.interactionType == 'ox_target' then
-                exports.ox_target:removeLocalEntity(self.entity)
+                if DoesEntityExist(self.entity) then
+                    exports.ox_target:removeLocalEntity(self.entity)
+                end
             elseif config.interactionType == 'interact' then
-                exports.interact:RemoveLocalEntityInteraction(self.entity)
+                if DoesEntityExist(self.entity) then
+                    exports.interact:RemoveLocalEntityInteraction(self.entity)
+                end
             end
             pts:deletePed()
         end
 
         function pts:deletePed()
-            if DoesEntityExist(self.entity) then
+            if self.entity and DoesEntityExist(self.entity) then
                 DeleteEntity(self.entity)
             end
             self.entity = nil
@@ -123,16 +122,26 @@ function utils.createPeds(openBank)
 
         function pts:createPed()
             pts:deletePed()
-            local model = lib.requestModel(self.model, 120000)
-            self.entity = CreatePed(0, model, self.coords.x, self.coords.y, self.coords.z - 1.0, self.heading, false, false)
+            local model = lib.requestModel(self.model, 30000)
+            if not model then return end
+            self.entity = CreatePed(
+                0,
+                model,
+                self.coords.x,
+                self.coords.y,
+                self.coords.z - 1.0,
+                self.heading,
+                false,
+                false
+            )
             SetEntityHeading(self.entity, self.heading)
-            
-            TaskStartScenarioInPlace(self.ped, 'PROP_HUMAN_STAND_IMPATIENT', 0, true)
+
+            TaskStartScenarioInPlace(self.entity, 'PROP_HUMAN_STAND_IMPATIENT', 0, true)
             FreezeEntityPosition(self.entity, true)
             SetEntityInvincible(self.entity, true)
             SetBlockingOfNonTemporaryEvents(self.entity, true)
+            SetModelAsNoLongerNeeded(model)
         end
-
 
         function pts:onEnter()
             pts:registerInteraction()
@@ -141,7 +150,7 @@ function utils.createPeds(openBank)
         function pts:onExit()
             pts:removeInteraction()
         end
-        points[#points+1] = pts
+        points[#points + 1] = pts
     end
 end
 
@@ -151,10 +160,10 @@ function utils.addModelInteraction(openBank)
     if config.interactionType == 'ox_target' then
         exports.ox_target:addModel(config.atmProps, {
             {
-                name = interactionId,
+                name = interactionId .. '_atm',
                 label = locale('view_bank'),
                 icon = 'fas fa-university',
-                onSelect = function ()
+                onSelect = function()
                     openBank(true)
                 end
             }
@@ -163,15 +172,15 @@ function utils.addModelInteraction(openBank)
         for _, v in pairs(config.atmProps) do
             exports.interact:AddModelInteraction({
                 model = v,
-                name = interactionId,
-                id = interactionId,
+                name = interactionId .. '_atm',
+                id = interactionId .. '_atm',
                 distance = 5.0,
                 interactDst = 3.0,
                 offset = vec3(0.0, 0.0, 0.8),
                 options = {
                     {
                         label = locale('view_bank'),
-                        action = function ()
+                        action = function()
                             openBank(true)
                         end
                     }
@@ -183,19 +192,22 @@ end
 
 function utils.removeModelInteraction()
     if config.interactionType == 'ox_target' then
-        exports.ox_target:removeModel(config.atmProps, interactionId)
+        exports.ox_target:removeModel(config.atmProps, interactionId .. '_atm')
     else
         for _, v in pairs(config.atmProps) do
-            exports.interact:RemoveModelInteraction(v, interactionId)
+            exports.interact:RemoveModelInteraction(v, interactionId .. '_atm')
         end
     end
 end
 
-AddEventHandler('onResourceStop', function (res)
+AddEventHandler('onResourceStop', function(res)
     if res ~= cache.resource then return end
     for _, v in pairs(points) do
-        if DoesEntityExist(v.entity) then
-            DeleteEntity(v.entity)
+        if v.removeInteraction then
+            v:removeInteraction()
+        end
+        if v.remove then
+            v:remove()
         end
     end
 

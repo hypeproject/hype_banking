@@ -11,22 +11,18 @@ shared_scripts {
 }
 
 client_scripts {
-    'bridge/**/client.lua',
     'client/*.lua',
 }
 
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
-    'bridge/**/server.lua',
     'server/*.lua',
 }
 
 ui_page 'web/build/index.html'
 
--- development ui page
--- ui_page 'http://localhost:5173'
-
 files {
     'web/build/**',
-    'locales/*.json'
+    'locales/*.json',
+    'bridge/**/client.lua',
 }
